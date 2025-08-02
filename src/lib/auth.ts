@@ -2,6 +2,7 @@ import GitHubProvider from "next-auth/providers/github"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const authOptions = {
+    secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
