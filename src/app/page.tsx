@@ -54,7 +54,7 @@ export default function LandingPage() {
       });
       setRepos(res.data);
     } catch (err) {
-      alert("Failed to fetch repositories");
+      alert("Failed to fetch repositories " + err);
     }
     setLoadingRepos(false);
   };

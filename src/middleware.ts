@@ -1,24 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
-import auth from "next-auth/middleware";
+import { NextResponse } from "next/server";
+import { withAuth } from "next-auth/middleware";
 
-const protectedRoutes = ["/protected", "/dashboard", "/api/protected"];
-
-export default function middleware(request: NextRequest) {
-  // Check if the request is for a protected route
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  );
-
-  // If it's a protected route, use NextAuth middleware for authentication
-  if (isProtectedRoute) {
-    return auth(request);
+export default withAuth(
+  function middleware() {
+    // This function runs for authenticated users
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token}) => {
+        // Return true if user is authenticated, false otherwise
+        return !!token;
+      },
+    },
+    pages: {
+      signIn: "/api/auth/signin",
+    },
   }
+);
 
-  // For non-protected routes, continue without authentication
-  return NextResponse.next();
-}
-
-// Optionally, export config to match only specific routes
 export const config = {
-  matcher: ["/protected/:path*", "/dashboard/:path*", "/api/protected/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (auth API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder files
+     */
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$).*)",
+  ],
 };
